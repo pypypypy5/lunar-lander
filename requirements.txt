@@ -1,0 +1,61 @@
+# Lunar Lander Reinforcement Learning Project
+# Python 3.12 recommended (tested and working)
+
+# ============================================================================
+# 설치 방법 (Installation Instructions)
+# ============================================================================
+#
+# ⚠️ IMPORTANT: PyTorch must be installed with CPU index first!
+#
+# Step 1: Create and activate virtual environment
+#   python -m venv venv
+#   # On Windows: venv\Scripts\activate
+#   # On Linux/Mac: source venv/bin/activate
+#
+# Step 2: Install PyTorch for CPU
+#   pip install torch --index-url https://download.pytorch.org/whl/cpu
+#
+# Step 3: Install remaining dependencies
+#   pip install -r requirements.txt
+#
+# Alternative (one-liner after activating venv):
+#   pip install torch --index-url https://download.pytorch.org/whl/cpu && pip install -r requirements.txt
+#
+# ============================================================================
+
+# Deep Learning Framework
+torch==2.9.1
+
+# Reinforcement Learning Environment
+gymnasium==1.2.3
+
+# Data Storage and Processing
+h5py==3.15.1
+numpy==2.4.1
+
+# Visualization and Analysis
+matplotlib==3.10.8
+
+# ============================================================================
+# 문제 해결 (Troubleshooting)
+# ============================================================================
+#
+# ✓ Versions tested and verified working on Python 3.12 with native Windows Python
+#
+# If you encounter issues:
+#
+# 1. Torch installation fails:
+#    → Make sure to use CPU index: pip install torch --index-url https://download.pytorch.org/whl/cpu
+#
+# 2. Box2D not available:
+#    → Install gymnasium[box2d]: pip install "gymnasium==1.2.3[box2d]"
+#
+# 3. MSYS2 Python SSL errors:
+#    → Use native Python from python.org, not MSYS2 version
+#    → Recreate venv: python -m venv venv (from Windows Python)
+#
+# 4. Permission errors on Windows:
+#    → Run PowerShell as Administrator
+#    → Or use: python -m pip install ... (instead of pip install ...)
+#
+# ============================================================================
