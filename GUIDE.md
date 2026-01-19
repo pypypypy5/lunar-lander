@@ -553,7 +553,7 @@ python train_agent.py --f my_ac --verbose
 
 ```bash
 # DQN 평가 (100 에피소드)
-python run_agent.py --f my_dqn --dqn --N 100 --verbose
+python run_agent.py --f test_dqn2 --dqn --N 100 --record_video --video_episodes 5 --verbose --overwrite
 
 # Actor-Critic 평가
 python run_agent.py --f my_ac --N 100 --verbose
