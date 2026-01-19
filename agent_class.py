@@ -463,8 +463,9 @@ class agent_base():
         # ================================================================
         # 여기에 코드를 작성하세요
         # ================================================================
+        reward = env_reward
 
-        raise NotImplementedError("TODO: compute_reward 함수를 구현하세요")
+        # raise NotImplementedError("TODO: compute_reward 함수를 구현하세요")
 
         # ================================================================
 
@@ -868,6 +869,7 @@ class dqn(agent_base):
         algorithm for action selection
         """
         #
+        policy_net = self.neural_networks['policy_net']
         if self.in_training:
             epsilon = self.epsilon
 
@@ -889,8 +891,17 @@ class dqn(agent_base):
         # ================================================================
         # 여기에 코드를 작성하세요
         # ================================================================
+        if torch.rand(1).item() < epsilon: # exploration
+            return torch.randint(0, self.n_actions, (1,)).item()
+        else:                               # exploitation
+            with torch.no_grad():
+                policy_net.eval()
+                state_tensor = state
+                q_values = policy_net(state_tensor)
+                action = q_values.argmax(dim=1).item()
+            return action
 
-        raise NotImplementedError("TODO: DQN act 함수를 구현하세요")
+        #raise NotImplementedError("TODO: DQN act 함수를 구현하세요")
 
         # ================================================================
         
@@ -960,8 +971,28 @@ class dqn(agent_base):
         # ================================================================
         # 여기에 코드를 작성하세요
         # ================================================================
+        # Bellman's LHS
+        q_values = policy_net(state_batch)
+        q_values_selected = q_values.gather(1, action_batch.unsqueeze(1)) # [batch size, 1]
 
-        raise NotImplementedError("TODO: DQN run_optimization_step 함수를 구현하세요")
+        # Bellman's RHS
+        with torch.no_grad():
+            if self.doubleDQN:
+                next_actions = policy_net(next_state_batch).argmax(dim=1, keepdim=True)
+                next_q_values = target_net(next_state_batch).gather(1, next_actions)
+            else:
+                next_q_values=target_net(next_state_batch).max(dim=1, keepdim=True)[0]
+            
+            target = reward_batch.unsqueeze(1) + self.discount_factor*next_q_values*(1-done_batch.unsqueeze(1))
+
+        loss_value = loss(q_values_selected, target)
+        optimizer.zero_grad()
+        loss_value.backward()
+        optimizer.step()
+
+        policy_net.eval
+
+        #raise NotImplementedError("TODO: DQN run_optimization_step 함수를 구현하세요")
 
         # ================================================================
 
