@@ -26,6 +26,25 @@ agent_base (기본 클래스)
 
 ### 학생이 구현해야 할 함수 (TODO 주석으로 표시됨)
 
+#### 0. agent_base 클래스 - Reward Function (line ~404)
+- **`agent_base.compute_reward(state, action, next_state, env_reward, terminated, truncated, info)`**
+  - 강화학습의 핵심: 보상 함수 설계
+  - 환경 보상을 그대로 사용하거나, 커스텀 보상 설계 가능
+  - 입력:
+    * state: 현재 상태 [x, y, vx, vy, angle, angular_vel, left_leg, right_leg]
+    * action: 선택한 행동 (0~3)
+    * next_state: 다음 상태
+    * env_reward: 환경에서 제공하는 기본 보상
+    * terminated, truncated: 에피소드 종료 여부
+    * info: 환경의 추가 정보
+  - 출력: float (최종 보상)
+  - 설계 고려사항:
+    * 목표 지점과의 거리
+    * 속도 제어 (너무 빠르면 추락)
+    * 각도 제어 (수평 착륙)
+    * 연료 소모 최소화
+    * 양쪽 다리 착지
+
 #### 1. DQN 클래스 (lines 686-912)
 - **`dqn.act(state, epsilon)`** (line 781~819)
   - Epsilon-greedy 행동 선택
@@ -154,6 +173,7 @@ python run_agent.py --f my_dqn_agent --dqn --N 100 --verbose
    - HDF5 저장/로드 로직
 
 2. **학생이 수정해야 하는 부분**:
+   - `agent_base.compute_reward()` ⭐ 보상 함수 설계
    - `dqn.act()`
    - `dqn.run_optimization_step()`
    - `actor_critic.act()`

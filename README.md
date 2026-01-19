@@ -1,3 +1,59 @@
+# Lunar Lander Reinforcement Learning 🚀
+
+> **교육용 프로젝트**: 강화학습(RL)을 사용하여 달 착륙선 게임을 학습시키는 실습 프로젝트입니다.
+
+## 🎯 프로젝트 개요
+
+학생들이 **DQN**과 **Actor-Critic** 알고리즘의 핵심 함수를 직접 구현하여 강화학습의 원리를 체험합니다.
+
+### 학습 목표
+- 강화학습의 핵심 개념 이해 (보상, 정책, 가치 함수)
+- **보상 함수 설계**의 중요성 체험 ⭐
+- DQN과 Actor-Critic 알고리즘 직접 구현
+- 하이퍼파라미터 튜닝 실습
+
+## ✍️ 실습 내용
+
+학생이 구현해야 할 **5개의 핵심 함수**:
+
+1. **`agent_base.compute_reward()`** - 보상 함수 설계 (NEW!)
+2. **`dqn.act()`** - Epsilon-greedy 행동 선택
+3. **`dqn.run_optimization_step()`** - Bellman 방정식 구현
+4. **`actor_critic.act()`** - 확률적 정책 구현
+5. **`actor_critic.run_optimization_step()`** - Actor-Critic 학습
+
+👉 **자세한 실습 가이드는 [GUIDE.md](GUIDE.md)를 참조하세요!**
+
+## 🚀 빠른 시작
+
+```bash
+# 1. 환경 설정
+pip install gymnasium torch h5py numpy
+
+# 2. DQN 학습
+python train_agent.py --f my_dqn --dqn --verbose
+
+# 3. Actor-Critic 학습
+python train_agent.py --f my_ac --verbose
+
+# 4. 학습된 에이전트 평가
+python run_agent.py --f my_dqn --dqn --N 100 --verbose
+```
+
+## 📁 주요 파일
+
+- **[agent_class.py](agent_class.py)**: 에이전트 클래스 (학생이 TODO 함수 구현)
+- **[GUIDE.md](GUIDE.md)**: 학생용 실습 가이드 (한국어)
+- **[CLAUDE.md](CLAUDE.md)**: 개발자/교수자용 참조 문서
+- **[train_agent.py](train_agent.py)**: 에이전트 학습 스크립트
+- **[run_agent.py](run_agent.py)**: 학습된 에이전트 평가 스크립트
+
+---
+
+## 🎬 데모 비디오
+
+학습된 에이전트의 플레이 영상:
+
 # lunar-lander: Reinforcement learning algorithms for training an agent to play the game lunar lander
 
 ## Introduction

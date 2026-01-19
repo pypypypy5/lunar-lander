@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip --version:*)",
+      "Bash(/mnt/c/Users/shj/Desktop/dev/lunar-lander/venv/bin/python3:*)",
+      "Bash(./venv/Scripts/python.exe:*)",
+      "Bash(./venv/bin/python --version)",
+      "Bash(venv/bin/python.exe:*)",
+      "Bash(venv/bin/pip.exe install:*)",
+      "Bash(chmod:*)",
+      "Bash(/mnt/c/Users/shj/AppData/Local/Programs/Python/Python312/python.exe:*)",
+      "Bash(rm:*)",
+      "Bash(/mnt/c/Users/shj/Desktop/dev/lunar-lander/venv/Scripts/pip install:*)",
+      "Bash(venv/Scripts/pip install:*)",
+      "Bash(venv/Scripts/python.exe -m pip install:*)",
+      "Bash(venv/Scripts/python.exe -m pip:*)",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "Bash(python3:*)",
+      "Bash(venv/Scripts/python.exe:*)"
+    ]
+  }
+}
