@@ -1,61 +1,19 @@
-# Lunar Lander Reinforcement Learning Project
-# Python 3.12 recommended (tested and working)
+# Lunar Lander RL - Python 3.12
 
-# ============================================================================
-# 설치 방법 (Installation Instructions)
-# ============================================================================
-#
-# ⚠️ IMPORTANT: PyTorch must be installed with CPU index first!
-#
-# Step 1: Create and activate virtual environment
-#   python -m venv venv
-#   # On Windows: venv\Scripts\activate
-#   # On Linux/Mac: source venv/bin/activate
-#
-# Step 2: Install PyTorch for CPU
-#   pip install torch --index-url https://download.pytorch.org/whl/cpu
-#
-# Step 3: Install remaining dependencies
-#   pip install -r requirements.txt
-#
-# Alternative (one-liner after activating venv):
-#   pip install torch --index-url https://download.pytorch.org/whl/cpu && pip install -r requirements.txt
-#
-# ============================================================================
+# 설치 명령어 (순서대로 실행):
+# 1. Remove-Item -Recurse -Force venv
+# 2. C:\Users\shj\AppData\Local\Programs\Python\Python312\python.exe -m venv venv
+# 3. .\venv\Scripts\Activate.ps1
+# 4. python -m pip install --upgrade pip
+# 5. pip install torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cpu
+# 6. pip install gymnasium h5py numpy matplotlib moviepy --only-binary :all:
+# 7. pip install gymnasium[box2d]
 
-# Deep Learning Framework
-torch==2.9.1
-
-# Reinforcement Learning Environment
-gymnasium==1.2.3
-
-# Data Storage and Processing
-h5py==3.15.1
-numpy==2.4.1
-
-# Visualization and Analysis
-matplotlib==3.10.8
-
-# ============================================================================
-# 문제 해결 (Troubleshooting)
-# ============================================================================
-#
-# ✓ Versions tested and verified working on Python 3.12 with native Windows Python
-#
-# If you encounter issues:
-#
-# 1. Torch installation fails:
-#    → Make sure to use CPU index: pip install torch --index-url https://download.pytorch.org/whl/cpu
-#
-# 2. Box2D not available:
-#    → Install gymnasium[box2d]: pip install "gymnasium==1.2.3[box2d]"
-#
-# 3. MSYS2 Python SSL errors:
-#    → Use native Python from python.org, not MSYS2 version
-#    → Recreate venv: python -m venv venv (from Windows Python)
-#
-# 4. Permission errors on Windows:
-#    → Run PowerShell as Administrator
-#    → Or use: python -m pip install ... (instead of pip install ...)
-#
-# ============================================================================
+torch==2.5.1
+torchvision==0.20.1
+torchaudio==2.5.1
+gymnasium>=0.27.0
+h5py>=3.7.0
+numpy>=1.21.0
+matplotlib>=3.5.0
+moviepy>=2.0.0
