@@ -468,6 +468,7 @@ class agent_base():
         # raise NotImplementedError("TODO: compute_reward 함수를 구현하세요")
 
         # ================================================================
+        return reward
 
     def act(self,state):
         """
@@ -540,6 +541,7 @@ class agent_base():
                     verbose=True,
                     model_filename=None,
                     training_filename=None,
+                    log_filename=None,
                 ):
         """
         Train the agent on a provided environment
@@ -552,28 +554,36 @@ class agent_base():
                             current_state, info = environment.reset(),
                          such current_state is an initial state of the with
                          np.shape(current_state) = (self.N_state,)
-                       - environment.set(action) should take an integer in 
-                         {0, ..., self.N_action-1} and return a tuple, 
+                       - environment.set(action) should take an integer in
+                         {0, ..., self.N_action-1} and return a tuple,
                             s, r, te, tr, info = environment.step(action),
                          where s is the next state with shape (self.N_state,),
                          r is the current reward (a float), and where te and
                          tr are two Booleans that tell us whether the episode
-                         has terminated (te == True) or has been truncated 
+                         has terminated (te == True) or has been truncated
                          (tr == True)
         verbose (Bool) -- Print progress of training to terminal. Defaults to
                           True
         model_filename (string) -- Output filename for final trained model and
-                                   periodic snapshots of the model during 
+                                   periodic snapshots of the model during
                                    training. Defaults to None, in which case
                                    nothing is not written to disk
-        training_filename (string) -- Output filename for training data, 
-                                      namely lists of episode durations, 
-                                      episode returns, number of training 
-                                      epochs, and total number of steps 
-                                      simulated. Defaults to None, in which 
+        training_filename (string) -- Output filename for training data,
+                                      namely lists of episode durations,
+                                      episode returns, number of training
+                                      epochs, and total number of steps
+                                      simulated. Defaults to None, in which
                                       case no training data is written to disk
+        log_filename (string) -- Output filename for training log in txt format.
+                                 Defaults to None, in which case no log file
+                                 is written to disk
         """
         self.in_training = True
+        #
+        # Open log file if specified
+        log_file = None
+        if log_filename is not None:
+            log_file = open(log_filename, 'w')
         #
         training_complete = False
         step_counter = 0 # total number of simulated environment steps
@@ -604,6 +614,8 @@ class agent_base():
                 "|---------------------------------------------------"
                     "--------------------")
             print(training_progress_header.format(self.n_solving_episodes))
+            if log_file is not None:
+                log_file.write(training_progress_header.format(self.n_solving_episodes) + '\n')
             #
             status_progress_string = ( # for outputting status during training
                         "| {0: 7d} |   {1: 10.3f}    |     "
@@ -675,10 +687,15 @@ class agent_base():
                                 if mean_ret > self.solving_threshold_mean:
                                     end='\n'
                             #
-                            print(status_progress_string.format(n_episode,
+                            status_line = status_progress_string.format(n_episode,
                                     current_total_reward,
-                                   min_ret,mean_ret),
-                                        end=end)
+                                   min_ret,mean_ret)
+                            print(status_line, end=end)
+                            #
+                            # Write to log file if specified
+                            if log_file is not None and end == '\n':
+                                log_file.write(status_line + '\n')
+                                log_file.flush()  # Ensure immediate write
                     break
             #
             # Save model and training stats to disk
@@ -713,6 +730,12 @@ class agent_base():
             "maximum number of episodes, {0}, was reached. But the stopping "
             "criterion has not been met.")
             warnings.warn(warning_string.format(self.n_episodes_max))
+            if log_file is not None:
+                log_file.write('\n' + warning_string.format(self.n_episodes_max) + '\n')
+        #
+        # Close log file if it was opened
+        if log_file is not None:
+            log_file.close()
         #
         self.in_training = False
         #
@@ -896,7 +919,7 @@ class dqn(agent_base):
         else:                               # exploitation
             with torch.no_grad():
                 policy_net.eval()
-                state_tensor = state
+                state_tensor = torch.FloatTensor(state).unsqueeze(0)
                 q_values = policy_net(state_tensor)
                 action = q_values.argmax(dim=1).item()
             return action
