@@ -56,6 +56,7 @@ args = parser.parse_args()
 output_filename = '{0}.tar'.format(args.f)
 output_filename_training_data = '{0}_training_data.h5'.format(args.f)
 output_filename_time = '{0}_execution_time.txt'.format(args.f)
+output_filename_log = '{0}_training_log.txt'.format(args.f)
 verbose=args.verbose
 overwrite=args.overwrite
 dqn=args.dqn
@@ -72,7 +73,7 @@ if not overwrite:
         raise RuntimeError(error_msg.format(output_filename_training_data))
 
 # Create environment
-env = gym.make('LunarLander-v2')
+env = gym.make('LunarLander-v3')
 
 # Obtain dimensions of action and observation space
 N_actions = env.action_space.n
@@ -139,6 +140,7 @@ training_results = my_agent.train(
                         verbose=verbose,
                         model_filename=output_filename,
                         training_filename=output_filename_training_data,
+                        log_filename=output_filename_log if verbose else None,
                             )
 execution_time = (time.time() - start_time)
 with open(output_filename_time,'w') as f:

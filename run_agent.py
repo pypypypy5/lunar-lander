@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 
 import gymnasium as gym
+from gymnasium.wrappers import RecordVideo
 import os
 import argparse
 import torch
 import numpy as np
-import itertools 
-import h5py 
+import itertools
+import h5py
 
 import agent_class as agent
 # agent_class defines
@@ -16,7 +17,7 @@ import agent_class as agent
 
 
 #############################################################################
-# This code runs the gym environment "LunarLander-v2" using a trained agent #
+# This code runs the gym environment "LunarLander-v3" using a trained agent #
 #############################################################################
 
 # Example for run from command line:
@@ -24,7 +25,7 @@ import agent_class as agent
 #   python run_agent.py --f my_file --verbose --overwrite --N 500
 #
 # This command loads the agent state stored in my_file.tar, uses this agent
-# to run N = 500 episodes of the LunarLander-v2 environment, and stores the
+# to run N = 500 episodes of the LunarLander-v3 environment, and stores the
 # resulting list of returns per episode and duration per episode in the file
 # my_file_trajs.h5
 # 
@@ -47,20 +48,28 @@ parser.add_argument('--overwrite', action='store_true')
 parser.set_defaults(overwrite=False)
 parser.add_argument('--dqn', action='store_true') # use this flag to train 
                                                 # via deep Q-learning
-parser.add_argument('--ddqn', action='store_true') # use this flag to train 
+parser.add_argument('--ddqn', action='store_true') # use this flag to train
                                                 # via double deep Q-learning
+parser.add_argument('--record_video', action='store_true',
+                    help='record video of agent performance')
+parser.add_argument('--video_episodes', type=int, default=5,
+                    help='number of episodes to record (default: 5)')
 parser.set_defaults(dqn=False)
 parser.set_defaults(ddqn=False)
+parser.set_defaults(record_video=False)
 args = parser.parse_args()
 
 # Create input and output filenames
 input_filename = '{0}.tar'.format(args.f)
 output_filename = '{0}_trajs.tar'.format(args.f)
+video_folder = '{0}_videos'.format(args.f)
 N = args.N
 verbose=args.verbose
 overwrite=args.overwrite
 dqn=args.dqn
 ddqn=args.ddqn
+record_video=args.record_video
+video_episodes=args.video_episodes
 if ddqn:
     dqn = True
 
@@ -74,15 +83,16 @@ if not overwrite:
 
 def run_and_save_simulations(env, # environment
                             input_filename,output_filename,N=1000,
-                            dqn=False):
+                            dqn=False,record_video=False,video_folder=None,
+                            video_episodes=5):
     #
     # load trained model
     input_dictionary = torch.load(open(input_filename,'rb'))
     dict_keys = np.array(list(input_dictionary.keys())).astype(int)
     max_index = np.max(dict_keys)
-    input_dictionary = input_dictionary[max_index] # During training we 
+    input_dictionary = input_dictionary[max_index] # During training we
     # periodically store the state of the neural networks. We now use
-    # the latest state (i.e. the one with the largest episode number), as 
+    # the latest state (i.e. the one with the largest episode number), as
     # for any succesful training this is the state that passed the stopping
     # criterion
     #
@@ -96,7 +106,14 @@ def run_and_save_simulations(env, # environment
     my_agent.load_state(state=input_dictionary)
     #
     # instantiate environment
-    env = gym.make('LunarLander-v2')
+    if record_video:
+        # Record only the first video_episodes episodes
+        env = gym.make('LunarLander-v3', render_mode='rgb_array')
+        env = RecordVideo(env, video_folder=video_folder,
+                         episode_trigger=lambda x: x < video_episodes,
+                         name_prefix='lunar_lander')
+    else:
+        env = gym.make('LunarLander-v3')
     #
     durations = []
     returns = []
@@ -136,18 +153,25 @@ def run_and_save_simulations(env, # environment
                 'durations':np.array(durations),
                 'input_file':input_filename,
                 'N':N}
-        
+
     with h5py.File(output_filename, 'w') as hf:
         for key, value in dictionary.items():
-            hf.create_dataset(str(key), 
+            hf.create_dataset(str(key),
                 data=value)
+
+    # Close environment to finalize video recording
+    if record_video:
+        env.close()
     
 
 # Create environment
-env = gym.make('LunarLander-v2')
+env = gym.make('LunarLander-v3')
 
 run_and_save_simulations(env=env,
                             input_filename=input_filename,
                             output_filename=output_filename,
                             N=N,
-                            dqn=dqn)
+                            dqn=dqn,
+                            record_video=record_video,
+                            video_folder=video_folder,
+                            video_episodes=video_episodes)

@@ -17,7 +17,11 @@
       "WebSearch",
       "WebFetch(domain:github.com)",
       "Bash(python3:*)",
-      "Bash(venv/Scripts/python.exe:*)"
+      "Bash(venv/Scripts/python.exe:*)",
+      "Bash(cat:*)",
+      "Bash(ls:*)",
+      "WebFetch(domain:pypi.org)",
+      "Bash(./venv/bin/python:*)"
     ]
   }
 }

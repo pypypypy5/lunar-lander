@@ -127,3 +127,11 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# RL Training outputs
+*_training_data.h5
+*_training_log.txt
+*_execution_time.txt
+*.tar
+*_trajs.tar
+*_videos/
