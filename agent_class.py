@@ -401,6 +401,73 @@ class agent_base():
         return False, minimal_return, mean_return
 
 
+    def compute_reward(self, state, action, next_state, env_reward, terminated, truncated, info):
+        """
+        학생이 구현해야 할 보상 함수
+
+        환경에서 제공하는 기본 보상을 그대로 사용할 수도 있고,
+        더 나은 학습을 위해 커스텀 보상을 설계할 수도 있습니다.
+
+        Keyword arguments:
+        state (np.array) -- 현재 상태, shape: (8,)
+            [x위치, y위치, x속도, y속도, 각도, 각속도, 왼쪽다리접촉, 오른쪽다리접촉]
+        action (int) -- 선택한 행동 (0: 아무것도안함, 1: 왼쪽엔진, 2: 메인엔진, 3: 오른쪽엔진)
+        next_state (np.array) -- 다음 상태, shape: (8,)
+        env_reward (float) -- 환경에서 제공하는 기본 보상
+        terminated (bool) -- 에피소드가 종료되었는지 (착륙 성공 or 추락)
+        truncated (bool) -- 에피소드가 강제 종료되었는지 (시간 초과)
+        info (dict) -- 환경에서 제공하는 추가 정보
+
+        Returns:
+        reward (float) -- 계산된 보상
+        """
+
+        # ================================================================
+        # TODO: 보상 함수를 구현하세요
+        # ================================================================
+        #
+        # 옵션 1: 환경 보상 그대로 사용 (기본)
+        # return env_reward
+        #
+        # 옵션 2: 커스텀 보상 설계
+        # 힌트:
+        # - state 구조: [x, y, vx, vy, angle, angular_vel, left_leg, right_leg]
+        # - 목표: 안전하게 착륙 (x=0, y=0 근처에 낮은 속도로 착륙)
+        # - 고려사항:
+        #   * 목표 지점(x=0)과의 거리
+        #   * 수직 속도(vy)가 너무 빠르면 추락
+        #   * 각도(angle)가 너무 기울어지면 위험
+        #   * 연료 소모 최소화 (action 1,2,3은 연료 소모)
+        #   * 양쪽 다리 모두 착지하면 보너스
+        #
+        # 예시:
+        # x, y, vx, vy, angle, angular_vel, left_leg, right_leg = next_state
+        #
+        # # 기본 보상부터 시작
+        # reward = env_reward
+        #
+        # # 목표 지점에 가까우면 보너스
+        # distance_penalty = -abs(x) * 0.1
+        # reward += distance_penalty
+        #
+        # # 속도가 너무 빠르면 감점
+        # if abs(vy) > 1.0:
+        #     reward -= abs(vy) * 0.5
+        #
+        # # 착륙 성공 시 추가 보너스
+        # if left_leg and right_leg:
+        #     reward += 10.0
+        #
+        # return reward
+        #
+        # ================================================================
+        # 여기에 코드를 작성하세요
+        # ================================================================
+
+        raise NotImplementedError("TODO: compute_reward 함수를 구현하세요")
+
+        # ================================================================
+
     def act(self,state):
         """
         Select an action for the current state
@@ -553,8 +620,17 @@ class agent_base():
                 action = self.act(state=state)
                 #
                 # perform action
-                next_state, reward, terminated, truncated, info = \
+                next_state, env_reward, terminated, truncated, info = \
                                         environment.step(action)
+                #
+                # compute custom reward using student's implementation
+                reward = self.compute_reward(state=state,
+                                            action=action,
+                                            next_state=next_state,
+                                            env_reward=env_reward,
+                                            terminated=terminated,
+                                            truncated=truncated,
+                                            info=info)
                 #
                 step_counter += 1 # increase total steps simulated
                 done = terminated or truncated # did the episode end?
