@@ -781,32 +781,42 @@ class dqn(agent_base):
     def act(self,state,epsilon=0.):
         """
         Use policy net to select an action for the current state
-        
-        We use an epsilon-greedy algorithm: 
+
+        We use an epsilon-greedy algorithm:
         - With probability epsilon we take a random action (uniformly drawn
           from the finite number of available actions)
         - With probability 1-epsilon we take the optimal action (as predicted
           by the policy net)
 
-        By default epsilon = 0, which means that we actually use the greedy 
+        By default epsilon = 0, which means that we actually use the greedy
         algorithm for action selection
         """
         #
         if self.in_training:
             epsilon = self.epsilon
 
-        if torch.rand(1).item() > epsilon:
-            # 
-            policy_net = self.neural_networks['policy_net']
-            #
-            with torch.no_grad():
-                policy_net.eval()
-                action = policy_net(torch.tensor(state)).argmax(0).item()
-                policy_net.train()
-                return action
-        else:
-            # perform random action
-            return torch.randint(low=0,high=self.n_actions,size=(1,)).item()
+        # ================================================================
+        # TODO: Epsilon-Greedy 행동 선택을 구현하세요
+        # ================================================================
+        #
+        # 힌트:
+        # 1. torch.rand(1).item()을 사용하여 0~1 사이의 난수 생성
+        # 2. 난수가 epsilon보다 크면 (확률 1-epsilon):
+        #    - policy_net을 사용하여 state에 대한 Q값 계산
+        #    - Q값이 가장 큰 행동을 선택 (argmax)
+        #    - torch.no_grad() 블록 안에서 실행
+        #    - policy_net.eval() 모드로 전환
+        # 3. 난수가 epsilon 이하이면 (확률 epsilon):
+        #    - 랜덤 행동 선택 (0 ~ self.n_actions-1 중 하나)
+        #    - torch.randint() 사용 가능
+        #
+        # ================================================================
+        # 여기에 코드를 작성하세요
+        # ================================================================
+
+        raise NotImplementedError("TODO: DQN act 함수를 구현하세요")
+
+        # ================================================================
         
     def update_epsilon(self):
         """
@@ -829,7 +839,7 @@ class dqn(agent_base):
     def run_optimization_step(self,epoch):
         """Run one optimization step for the policy net"""
         #
-        # if we have less sample transitions than we would draw in an 
+        # if we have less sample transitions than we would draw in an
         # optimization step, we do nothing
         if len(self.memory) < self.batch_size:
             return
@@ -845,46 +855,40 @@ class dqn(agent_base):
         #
         policy_net.train() # turn on training mode
         #
-        # Evaluate left-hand side of the Bellman equation using policy net
-        LHS = policy_net(state_batch.to(device)).gather(dim=1,
-                                 index=action_batch.unsqueeze(1))
-        # LHS.shape = [batch_size, 1]
+        # ================================================================
+        # TODO: Bellman 방정식을 사용하여 DQN 학습을 구현하세요
+        # ================================================================
         #
-        # Evaluate right-hand side of Bellman equation
-        if self.doubleDQN:
-            # double deep-Q learning paper: https://arxiv.org/abs/1509.06461
-            #
-            # in double deep Q-learning, we use the policy net for choosing
-            # the action on the right-hand side of the Bellman equation. We 
-            # then use the target net to evaluate the Q-function on the 
-            # chosen action
-            argmax_next_state = policy_net(next_state_batch).argmax(
-                                                                    dim=1)
-            # argmax_next_state.shape = [batch_size]
-            #
-            Q_next_state = target_net(next_state_batch).gather(
-                dim=1,index=argmax_next_state.unsqueeze(1)).squeeze(1)
-            # shapes of the various tensor appearing in the previous line:
-            # self.target_net(next_state_batch).shape = [batch_size,N_actions]
-            # self.target_net(next_state_batch).gather(dim=1,
-            #   index=argmax_next_state.unsqueeze(1)).shape = [batch_size, 1]
-            # Q_next_state.shape = [batch_size]
-        else:
-            # in deep Q-learning, we use the target net both for choosing
-            # the action on the right-hand side of the Bellman equation, and 
-            # for evaluating the Q-function on that action
-            Q_next_state = target_net(next_state_batch\
-                                                ).max(1)[0].detach()
-            # Q_next_state.shape = [batch_size]
-        RHS = Q_next_state * self.discount_factor * (1.-done_batch) \
-                            + reward_batch
-        RHS = RHS.unsqueeze(1) # RHS.shape = [batch_size, 1]
+        # 힌트:
+        # 1. LHS (Left-Hand Side): 현재 상태 s에서 실제로 선택한 행동 a의 Q값
+        #    - policy_net을 사용하여 state_batch에 대한 Q값을 계산
+        #    - .gather()를 사용하여 action_batch에 해당하는 Q값만 선택
+        #    - 결과 shape: [batch_size, 1]
         #
-        # optimize the model
-        loss_ = loss(LHS, RHS)
-        optimizer.zero_grad()
-        loss_.backward()
-        optimizer.step()
+        # 2. RHS (Right-Hand Side): Bellman 방정식의 타겟값
+        #    - 다음 상태 s'에서의 최대 Q값을 계산
+        #    - self.doubleDQN이 True인 경우 (Double DQN):
+        #      * policy_net으로 행동을 선택 (argmax)
+        #      * target_net으로 선택된 행동의 Q값을 평가
+        #    - self.doubleDQN이 False인 경우 (Standard DQN):
+        #      * target_net으로 직접 최대 Q값을 선택
+        #    - RHS = Q(s') * discount_factor * (1 - done) + reward
+        #    - 결과 shape: [batch_size, 1]
+        #
+        # 3. 손실 함수 계산 및 최적화
+        #    - loss_ = loss(LHS, RHS)  # MSE Loss
+        #    - optimizer.zero_grad()
+        #    - loss_.backward()
+        #    - optimizer.step()
+        #
+        # ================================================================
+        # 여기에 코드를 작성하세요
+        # ================================================================
+
+        raise NotImplementedError("TODO: DQN run_optimization_step 함수를 구현하세요")
+
+        # ================================================================
+
         #
         policy_net.eval() # turn off training mode
         #
@@ -984,35 +988,46 @@ class actor_critic(agent_base):
         from the available actions
             {1, .., n_action}
         according to their (stochastic) policy.
-        More explicitly, for each state s the policy yields a vector of 
-        probabilities 
+        More explicitly, for each state s the policy yields a vector of
+        probabilities
             pi(s) = (pi_1, ..., pi_{n_action})
         for the n_action actions. The actor draws an action according to these
         probabilities pi(s).
         """
         actor_net = self.neural_networks['policy_net']
 
-        with torch.no_grad():
-            actor_net.eval()
-            # see
-            #https://pytorch.org/docs/stable/distributions.html#score-function
-            probs = self.Softmax(actor_net(torch.tensor(state)))
-            m = Categorical(probs)
-            action = m.sample()
-            actor_net.train()
-            return action.item()
+        # ================================================================
+        # TODO: 확률적 정책(Stochastic Policy)을 사용한 행동 선택 구현
+        # ================================================================
+        #
+        # 힌트:
+        # 1. torch.no_grad() 블록 안에서 실행
+        # 2. actor_net을 eval() 모드로 전환
+        # 3. actor_net에 state를 입력하여 각 행동의 affinities(선호도) 계산
+        # 4. self.Softmax()를 사용하여 affinities를 확률 분포로 변환
+        # 5. Categorical(probs)를 사용하여 확률 분포 객체 생성
+        # 6. .sample()을 사용하여 확률에 따라 행동 샘플링
+        # 7. .item()을 사용하여 텐서를 정수로 변환하여 반환
+        #
+        # ================================================================
+        # 여기에 코드를 작성하세요
+        # ================================================================
+
+        raise NotImplementedError("TODO: Actor-Critic act 함수를 구현하세요")
+
+        # ================================================================
         
     def run_optimization_step(self,epoch):
         """Run one optimization step for the policy net"""
         #
         # Note that the parameter "epoch" is not actually used here, but it is
-        # a mandatory parameter because the the method train() in the base 
+        # a mandatory parameter because the the method train() in the base
         # class calls run_optimization_step(epoch=epoch).
         #
         ################################
         # Draw experiences from memory #
         ################################
-        # If we have less sample transitions than we would draw in an 
+        # If we have less sample transitions than we would draw in an
         # optimization step, we do nothing
         if len(self.memory) < self.batch_size:
             return
@@ -1032,40 +1047,51 @@ class actor_critic(agent_base):
         loss_actor = self.losses['policy_net']
         loss_critic = self.losses['critic_net']
         #
-        ################
-        # train critic #
-        ################
-        critic_net.train() # turn on training mode
+        # ================================================================
+        # TODO: Actor-Critic 알고리즘 학습을 구현하세요
+        # ================================================================
         #
-        # Evaluate left-hand side of the Bellman equation using policy net
-        LHS = critic_net(state_batch.to(device))
-        # LHS.shape = [batch_size, 1]
-        Q_next_state = critic_net(next_state_batch).detach().squeeze(1)
-        RHS = Q_next_state * self.discount_factor * (1.-done_batch) \
-                            + reward_batch
-        RHS = RHS.unsqueeze(1) # RHS.shape = [batch_size, 1]
+        # Actor-Critic은 두 개의 신경망을 동시에 학습합니다:
+        # 1. Critic (가치 함수 V(s) 학습)
+        # 2. Actor (정책 π(a|s) 학습)
         #
-        # optimize the model
-        loss = loss_critic(LHS, RHS)
-        optimizer_critic.zero_grad()
-        loss.backward()
-        optimizer_critic.step()
+        # 힌트:
         #
-        critic_net.eval() # turn off training mode
+        # [Part 1: Critic 학습]
+        # 1. critic_net을 train() 모드로 전환
+        # 2. Bellman 방정식의 LHS 계산:
+        #    - LHS = critic_net(state_batch)  # 현재 상태의 가치 V(s)
+        #    - shape: [batch_size, 1]
+        # 3. Bellman 방정식의 RHS 계산:
+        #    - Q_next_state = critic_net(next_state_batch).detach().squeeze(1)
+        #    - RHS = Q_next_state * discount_factor * (1 - done_batch) + reward_batch
+        #    - RHS = RHS.unsqueeze(1)
+        #    - shape: [batch_size, 1]
+        # 4. Critic 손실 계산 및 최적화:
+        #    - loss = loss_critic(LHS, RHS)  # MSE Loss
+        #    - optimizer_critic.zero_grad()
+        #    - loss.backward()
+        #    - optimizer_critic.step()
+        # 5. critic_net을 eval() 모드로 전환
         #
-        ###############
-        # train actor #
-        ###############
-        actor_net.train()
-        advantage_batch = (RHS - LHS).detach()
-        loss = loss_actor(state_batch=state_batch,
-                          action_batch=action_batch,
-                          advantage_batch=advantage_batch)
-        optimizer_actor.zero_grad()
-        loss.backward()
-        optimizer_actor.step()
+        # [Part 2: Actor 학습]
+        # 1. actor_net을 train() 모드로 전환
+        # 2. Advantage 계산:
+        #    - advantage_batch = (RHS - LHS).detach()
+        #    - advantage는 "이 행동이 평균보다 얼마나 좋은가"를 나타냄
+        # 3. Actor 손실 계산 및 최적화:
+        #    - loss = loss_actor(state_batch, action_batch, advantage_batch)
+        #    - optimizer_actor.zero_grad()
+        #    - loss.backward()
+        #    - optimizer_actor.step()
+        # 4. actor_net을 eval() 모드로 전환
         #
-        actor_net.eval()
-        #
+        # ================================================================
+        # 여기에 코드를 작성하세요
+        # ================================================================
+
+        raise NotImplementedError("TODO: Actor-Critic run_optimization_step 함수를 구현하세요")
+
+        # ================================================================
 
 
